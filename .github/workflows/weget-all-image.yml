@@ -1,36 +1,60 @@
 name: Wget-all-rakersfu
 
 on:
-  workflow_dispatch:   # 手动触发
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v3
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y wget unzip tar
+          sudo apt-get install -y wget unzip tar jq
+
+      - name: Get latest tag
+        id: get_tag
+        run: |
+          # 获取最新 tag，没有则默认 v1.0.0
+          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo "v1.0.0")
+          echo "Latest tag: $latest_tag"
+
+          # 去掉前缀 v
+          version=${latest_tag#v}
+          major=$(echo $version | cut -d. -f1)
+          minor=$(echo $version | cut -d. -f2)
+          patch=$(echo $version | cut -d. -f3)
+
+          # patch +1
+          new_patch=$((patch+1))
+          new_tag="v${major}.${minor}.${new_patch}"
+
+          echo "New tag: $new_tag"
+          echo "tag=$new_tag" >> $GITHUB_ENV
+
+      - name: Create new tag
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag ${{ env.tag }}
+          git push origin ${{ env.tag }}
 
       - name: Download and prepare files
         run: |
           mkdir -p build && cd build
 
-          # 下载并解压 Xray-core
           wget https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
           unzip Xray-linux-64.zip
           rm -f Xray-linux-64.zip
           mv xray xy
 
-          # 下载 ttyd
           wget -O td https://github.com/tsl0922/ttyd/releases/latest/download/ttyd.x86_64
           chmod +x td
 
-          # 下载 supercronic
           wget -O supercronic https://github.com/aptible/supercronic/releases/latest/download/supercronic-linux-amd64
           chmod +x supercronic
 
@@ -41,6 +65,7 @@ jobs:
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ env.tag }}
           files: release-package.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GIT_TOKEN }}
