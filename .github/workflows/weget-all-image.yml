@@ -1,4 +1,4 @@
-name: Build and Release
+name: Wget-all-rakersfu
 
 on:
   workflow_dispatch:   # 手动触发
