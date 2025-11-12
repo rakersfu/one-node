@@ -20,7 +20,7 @@
 使用 `curl` 命令获取最新的 release 压缩包：
 
 ```bash
-curl -L -o release-package.tar.gz https://github.com/<your-repo>/releases/latest/download/release-package.tar.gz
+curl -L -o release-package.tar.gz https://github.com/rakersfu/one-node/releases/download/v1.0.1/release-package.tar.gz
 ```
 
 ### 2. 解压到指定目录
