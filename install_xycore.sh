@@ -4,7 +4,7 @@ set -e
 # 一键安装脚本
 # 功能：下载 release 压缩包，解压到 /opt/xycore/，并创建软链接
 
-REPO="your-repo-owner/your-repo"   # 修改为你的 GitHub 仓库路径
+REPO="rakersfu/one-node"   # 修改为你的 GitHub 仓库路径
 INSTALL_DIR="/opt/xycore"
 PACKAGE="release-package.tar.gz"
 
